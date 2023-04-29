@@ -5,12 +5,6 @@ import css from './Modal.module.scss';
 const modalRoot = document.querySelector('#modal-root');
 
 export const Modal = ({ onClose, children }) => {
-  const handleEscKeyDown = e => {
-    if (e.code === 'Escape') {
-      onClose();
-    }
-  };
-
   const handleBackdropClick = e => {
     if (e.currentTarget === e.target) {
       onClose();
@@ -18,11 +12,17 @@ export const Modal = ({ onClose, children }) => {
   };
 
   useEffect(() => {
+    const handleEscKeyDown = e => {
+      if (e.code === 'Escape') {
+        onClose();
+      }
+    };
+
     window.addEventListener('keydown', handleEscKeyDown);
     return () => {
       window.removeEventListener('keydown', handleEscKeyDown);
     };
-  }, []);
+  }, [onClose]);
 
   return createPortal(
     <div className={css.ModalBackdrop} onClick={handleBackdropClick}>
