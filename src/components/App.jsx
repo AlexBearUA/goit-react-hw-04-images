@@ -4,7 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import imagesAPI from '../services/images-api';
 import Searchbar from './Searchbar/Searchbar';
-import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
+import { ImageGalleryItem } from './ImageGalleryItem/ImageGalleryItem';
 import { Loader } from './Loader/Loader';
 import { LoadMoreBtn } from './LoadMoreBtn/LoadMoreBtn';
 import { ImageGallery } from './ImageGallery/ImageGallery';
@@ -103,7 +103,7 @@ class App extends Component {
         {loadMore && <LoadMoreBtn onClick={this.loadMore} />}
         {isloading && <Loader />}
         {endOfCollection && (
-          <p className="TheEnd">You've reached the end of search results.</p>
+          <p className="TheEnd">You've reached the end of collection.</p>
         )}
         <ToastContainer autoClose={1500} />
       </>
