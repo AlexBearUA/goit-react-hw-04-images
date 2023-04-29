@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
@@ -9,105 +9,85 @@ import { Loader } from './Loader/Loader';
 import { LoadMoreBtn } from './LoadMoreBtn/LoadMoreBtn';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { scrollOnLoading } from '../services/scroll';
-class App extends Component {
-  state = {
-    searchQuery: '',
-    images: [],
-    page: 1,
-    isloading: false,
-    loadMore: false,
-    endOfCollection: false,
-  };
 
-  componentDidUpdate(_, prevState) {
-    const { searchQuery, page, images } = this.state;
+export const App = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [isloading, setIsLoading] = useState(false);
+  const [showLoadMore, setShowLoadMore] = useState(false);
+  const [endOfCollection, setEndOfCollection] = useState(false);
 
-    if (prevState.searchQuery !== searchQuery || prevState.page !== page) {
-      this.setState({
-        isloading: true,
-        loadMore: false,
-      });
+  useEffect(() => {
+    if (!searchQuery) return;
+    setIsLoading(true);
+    setShowLoadMore(false);
 
-      imagesAPI
-        .fetchImages(searchQuery, page)
-        .then(({ data: { totalHits, hits: fetchedImages } }) => {
-          if (totalHits === 0) {
-            return toast.error('There are no images on your searchquery');
-          }
+    imagesAPI
+      .fetchImages(searchQuery, page)
+      .then(({ data: { totalHits, hits: fetchedImages } }) => {
+        if (totalHits === 0) {
+          return toast.error('There are no images on your searchquery');
+        }
 
-          this.setState(prevState => ({
-            images: [
-              ...prevState.images,
-              ...this.normalaziedImages(fetchedImages),
-            ],
-          }));
+        setImages(prevImages => [
+          ...prevImages,
+          ...normalaziedImages(fetchedImages),
+        ]);
 
-          images.length + 12 < totalHits && this.setState({ loadMore: true });
+        images.length + 12 < totalHits
+          ? setShowLoadMore(true)
+          : setEndOfCollection(true);
+      })
+      .catch(error => console.log(error))
+      .finally(() => setIsLoading(false));
+    page > 1 && scrollOnLoading();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, searchQuery]);
 
-          if (
-            fetchedImages.length === totalHits ||
-            (images.length + 12 >= totalHits && images.length !== 0)
-          ) {
-            this.setState({ endOfCollection: true });
-          }
-        })
-        .catch(error => console.log(error))
-        .finally(() => this.setState({ isloading: false }));
+  const handleSearchSubmit = newSearchQuery => {
+    if (newSearchQuery === searchQuery) {
+      return toast.success('Images on your serchquery are already loaded');
     }
-
-    this.state.page > 1 && scrollOnLoading();
-  }
-
-  handleSearchSubmit = searchQuery => {
-    searchQuery === this.state.searchQuery
-      ? toast.success('Images on your serchquery are already loaded')
-      : this.setState({
-          searchQuery,
-          page: 1,
-          images: [],
-          endOfCollection: false,
-        });
+    setSearchQuery(newSearchQuery);
+    setPage(1);
+    setImages([]);
+    setEndOfCollection(false);
   };
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const loadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  normalaziedImages(images) {
+  const normalaziedImages = images => {
     return images.map(({ id, tags, webformatURL, largeImageURL }) => ({
       id,
       tags,
       webformatURL,
       largeImageURL,
     }));
-  }
+  };
 
-  render() {
-    const { images, isloading, loadMore, endOfCollection } = this.state;
-    return (
-      <>
-        <Searchbar onSubmit={this.handleSearchSubmit} />
-        <ImageGallery>
-          {images &&
-            images.map(({ id, tags, webformatURL, largeImageURL }) => (
-              <ImageGalleryItem
-                key={id}
-                webFormatUrl={webformatURL}
-                largeImageUrl={largeImageURL}
-                tags={tags}
-              />
-            ))}
-        </ImageGallery>
-        {loadMore && <LoadMoreBtn onClick={this.loadMore} />}
-        {isloading && <Loader />}
-        {endOfCollection && (
-          <p className="TheEnd">You've reached the end of collection.</p>
-        )}
-        <ToastContainer autoClose={1500} />
-      </>
-    );
-  }
-}
-export default App;
+  return (
+    <>
+      <Searchbar onSubmit={handleSearchSubmit} />
+      <ImageGallery>
+        {images.length > 0 &&
+          images.map(({ id, tags, webformatURL, largeImageURL }) => (
+            <ImageGalleryItem
+              key={id}
+              webFormatUrl={webformatURL}
+              largeImageUrl={largeImageURL}
+              tags={tags}
+            />
+          ))}
+      </ImageGallery>
+      {showLoadMore && <LoadMoreBtn onClick={loadMore} />}
+      {isloading && <Loader />}
+      {endOfCollection && (
+        <p className="TheEnd">You've reached the end of collection.</p>
+      )}
+      <ToastContainer autoClose={1500} />
+    </>
+  );
+};
