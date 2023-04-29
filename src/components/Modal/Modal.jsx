@@ -22,7 +22,8 @@ export const Modal = ({ onClose, children }) => {
     return () => {
       window.removeEventListener('keydown', handleEscKeyDown);
     };
-  }, [onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return createPortal(
     <div className={css.ModalBackdrop} onClick={handleBackdropClick}>
