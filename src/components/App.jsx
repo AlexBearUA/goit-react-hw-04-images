@@ -18,6 +18,29 @@ export const App = () => {
   const [showLoadMore, setShowLoadMore] = useState(false);
   const [endOfCollection, setEndOfCollection] = useState(false);
 
+  const handleSearchSubmit = newSearchQuery => {
+    if (newSearchQuery === searchQuery) {
+      return toast.success('Images on your serchquery are already loaded');
+    }
+    setSearchQuery(newSearchQuery);
+    setPage(1);
+    setImages([]);
+    setEndOfCollection(false);
+  };
+
+  const loadMore = () => {
+    setPage(prevPage => prevPage + 1);
+  };
+
+  const normalaziedImages = images => {
+    return images.map(({ id, tags, webformatURL, largeImageURL }) => ({
+      id,
+      tags,
+      webformatURL,
+      largeImageURL,
+    }));
+  };
+
   useEffect(() => {
     if (!searchQuery) return;
     setIsLoading(true);
@@ -42,29 +65,6 @@ export const App = () => {
       .catch(error => console.log(error))
       .finally(() => setIsLoading(false));
   }, [page, searchQuery]);
-
-  const handleSearchSubmit = newSearchQuery => {
-    if (newSearchQuery === searchQuery) {
-      return toast.success('Images on your serchquery are already loaded');
-    }
-    setSearchQuery(newSearchQuery);
-    setPage(1);
-    setImages([]);
-    setEndOfCollection(false);
-  };
-
-  const loadMore = () => {
-    setPage(prevPage => prevPage + 1);
-  };
-
-  const normalaziedImages = images => {
-    return images.map(({ id, tags, webformatURL, largeImageURL }) => ({
-      id,
-      tags,
-      webformatURL,
-      largeImageURL,
-    }));
-  };
 
   useEffect(() => {
     page > 1 && scrollOnLoading();
