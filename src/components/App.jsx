@@ -41,11 +41,6 @@ export const App = () => {
       })
       .catch(error => console.log(error))
       .finally(() => setIsLoading(false));
-
-    if (page > 1) {
-      console.log('пора скролити');
-      scrollOnLoading();
-    }
   }, [page, searchQuery]);
 
   const handleSearchSubmit = newSearchQuery => {
@@ -70,6 +65,10 @@ export const App = () => {
       largeImageURL,
     }));
   };
+
+  useEffect(() => {
+    page > 1 && scrollOnLoading();
+  }, [images, page]);
 
   return (
     <>

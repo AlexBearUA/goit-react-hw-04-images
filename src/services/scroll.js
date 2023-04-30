@@ -4,7 +4,7 @@ export function scrollOnLoading() {
     .firstElementChild.getBoundingClientRect();
   console.log('scroll');
   window.scrollBy({
-    top: cardHeight * 3.47,
+    top: cardHeight * 2.47,
     behavior: 'smooth',
   });
 }
