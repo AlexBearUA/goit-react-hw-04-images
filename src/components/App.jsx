@@ -43,6 +43,7 @@ export const App = () => {
       .finally(() => setIsLoading(false));
 
     if (page > 1) {
+      console.log('пора скролити');
       scrollOnLoading();
     }
   }, [page, searchQuery]);
@@ -84,6 +85,7 @@ export const App = () => {
             />
           ))}
       </ImageGallery>
+
       {showLoadMore && <LoadMoreBtn onClick={loadMore} />}
       {isloading && <Loader />}
       {endOfCollection && (
