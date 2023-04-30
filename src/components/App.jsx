@@ -35,14 +35,16 @@ export const App = () => {
           ...normalaziedImages(fetchedImages),
         ]);
 
-        images.length + 12 < totalHits
+        12 * (page - 1) + fetchedImages.length < totalHits
           ? setShowLoadMore(true)
           : setEndOfCollection(true);
       })
       .catch(error => console.log(error))
       .finally(() => setIsLoading(false));
-    page > 1 && scrollOnLoading();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    if (page > 1) {
+      scrollOnLoading();
+    }
   }, [page, searchQuery]);
 
   const handleSearchSubmit = newSearchQuery => {
